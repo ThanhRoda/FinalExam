@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import Server.SupperPlaneGame;
 import javafx.event.ActionEvent;
 
 import javafx.scene.control.Label;
@@ -82,7 +83,7 @@ public class LoginController {
 					p.setPlayer(new Player(userName, passRes, score));
 
 					// join game
-					SupperPlaneGame.gameScene(stage, new Player(userName, passRes, score));
+					SupperPlaneGame.gameScene(stage);;
 
 				} else {
 					finalRes = "Password incorrect";
