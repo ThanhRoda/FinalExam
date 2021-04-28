@@ -68,7 +68,7 @@ public class BaseLayout {
 
 	public void update() {
 		if (exlosing)
-			explosionStep++;
+			explosionStep += 0.02;
 		destroy = explosionStep > EXPLOSION_STEPS;
 	}
 

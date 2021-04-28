@@ -115,15 +115,8 @@ public class SupperPlaneGame extends Application {
 
 		ArrayList<BaseLayout> gunList = new ArrayList<>();
 		ArrayList<BaseLayout> gunList2 = new ArrayList<>();
-		ArrayList<BaseLayout> obstacles = new ArrayList<>();
-
-		for (int i = 1; i <= 3; i++) {
-			BaseLayout ob = new BaseLayout("/12.png");
-			double y = 500 * Math.random() + 100;
-			ob.position.set(1000, y);
-			ob.speedMovement.setLength(SPEED_OBS);
-			obstacles.add(ob);
-		}
+		ArrayList<BaseLayout> gunList3 = new ArrayList<>();
+		
 		BaseLayout background = new BaseLayout("/background.jpg");
 		background.position.set(500, 300);
 
@@ -131,7 +124,10 @@ public class SupperPlaneGame extends Application {
 		plane.position.set(100, 300);
 
 		BaseLayout plane2 = new BaseLayout("/player2.png");
-		plane2.position.set(900, 300);
+		plane2.position.set(900, 150);
+		
+		BaseLayout plane3 = new BaseLayout("/player2.png");
+		plane3.position.set(900, 450);
 
 		RunningGame = new AnimationTimer() {
 
@@ -163,7 +159,7 @@ public class SupperPlaneGame extends Application {
 					gun.position.set(plane2.position.x - plane2.image.getWidth() / 2.0, plane2.position.y);
 					gun.speedMovement.setLength(300);
 					gunList2.add(gun);
-				}
+				} 
 				if (keyJustPressList.contains("SPACE")) {
 					client.send(String.valueOf("SPACE"));
 					BaseLayout gun = new BaseLayout("/rocket.png");
@@ -185,8 +181,6 @@ public class SupperPlaneGame extends Application {
 						gunList2.remove(gun);
 				}
 
-				for (BaseLayout obs : obstacles)
-					obs.moveBackward(1 / 60.0);
 
 				for (int j = 0; j < gunList.size(); j++) {
 					BaseLayout gun = gunList.get(j);
@@ -202,22 +196,29 @@ public class SupperPlaneGame extends Application {
 						gunList2.remove(gun);
 					}
 				}
+				if (plane2.isOverLap(plane3)) {
+					plane2.exlosing = true;
+					plane3.exlosing = true;
+				}
+				for (int j = 0; j < gunList3.size(); j++) {
+					BaseLayout gun = gunList3.get(j);
+					if (gun.isOverLap(plane)) {
+						plane.exlosing = true;
+						gunList3.remove(gun);
+					}
+				}
 
 				background.render(context);
 				plane.update();
 				plane.render(context);
 				plane2.update();
 				plane2.render(context);
+				plane3.update();
+				plane3.render(context);
 
-				for (BaseLayout gun : gunList) {
-					gun.render(context);
-				}
-				for (BaseLayout gun : gunList2) {
-					gun.render(context);
-				}
-				if (plane.destroy || plane2.destroy) {
+				if (plane.destroy || plane2.destroy || plane3.destroy ) {
 					stop();
-					if (plane2.destroy)
+					if (plane2.destroy || plane3.destroy)
 						context.fillText("You Win", 450, 300);
 					else
 						context.fillText("You Lose", 450, 300);
@@ -233,25 +234,35 @@ public class SupperPlaneGame extends Application {
 					context.strokeText(textUser, 450, 300);
 					stop();
 				}
-				
 				if (socketValue.compareToIgnoreCase("start") == 0) {
 					socketValue ="nothing";
 					String textUser = "Start Game";
 					context.fillText(textUser, 450, 300);
 					context.strokeText(textUser, 450, 300);
 				}
+				for (BaseLayout gun : gunList) {
+					gun.render(context);
+				}
+				for (BaseLayout gun : gunList2) {
+					gun.render(context);
+				}
 				
 			}
 		};
-		client.send("ready");
-			client.seHandle(data -> {
+		
+		client.seHandle(data -> {
 				socketValue = data;
 				System.out.println(socketValue);
 				Platform.runLater(() -> {
-					if (socketValue.compareToIgnoreCase("start") == 0)
+					if (socketValue.compareToIgnoreCase("start") == 0) {
+						gunList.clear();
+						gunList2.clear();
 						RunningGame.start();
+					}
+						
 				});
 			});
+		client.send("ready");
 		RunningGame.start();
 		primaryStage.show();
 	}

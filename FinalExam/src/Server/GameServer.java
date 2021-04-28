@@ -106,7 +106,6 @@ public class GameServer {
 										otherSocket = incoming;
 										outPrinter.println("waiting");
 									}
-									
 									continue;
 								}
 								listSockets.removeIf(x -> x.isClosed());
