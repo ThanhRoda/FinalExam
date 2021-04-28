@@ -85,14 +85,6 @@ public class SupperPlaneGame extends Application {
 
 
 	public static void gameScene(Stage primaryStage) throws IOException {
-		
-		Runnable task1 = () -> {
-			client.seHandle(data -> {
-				socketValue = data;
-				System.out.println(socketValue);
-			});						
-		};
-
 		SPEED_OBS = 50;
 		score = 0;
 		primaryStage.setTitle("Supper Plane");
@@ -148,9 +140,7 @@ public class SupperPlaneGame extends Application {
 				if (keyPressList.contains("UP")) {
 					if (plane.position.y - 10 > 10)
 						plane.position.set(plane.position.x, plane.position.y - 10);
-				//	outPrinter.println(plane.position.y);
 					client.send(String.valueOf(plane.position.y));
-
 				}
 
 				try {
@@ -237,18 +227,31 @@ public class SupperPlaneGame extends Application {
 				context.setStroke(Color.GREEN);
 				context.setFont(new Font("Arial Black", 30));
 
-//				if (socketValue.compareToIgnoreCase("false") == 0) {
-//					stop();
-//				}
-//				if (socketValue.compareToIgnoreCase("true") == 0) {
-//					String textUser = "Start Game";
-//					context.fillText(textUser, 450, 300);
-//					context.strokeText(textUser, 450, 300);
-//				}
+				if (socketValue.compareToIgnoreCase("waiting") == 0) {
+					String textUser = "Matching ...";
+					context.fillText(textUser, 450, 300);
+					context.strokeText(textUser, 450, 300);
+					stop();
+				}
+				
+				if (socketValue.compareToIgnoreCase("start") == 0) {
+					socketValue ="nothing";
+					String textUser = "Start Game";
+					context.fillText(textUser, 450, 300);
+					context.strokeText(textUser, 450, 300);
+				}
 				
 			}
 		};
-		primaryStage.setOnShowing(e -> new Thread(task1).start());
+		client.send("ready");
+			client.seHandle(data -> {
+				socketValue = data;
+				System.out.println(socketValue);
+				Platform.runLater(() -> {
+					if (socketValue.compareToIgnoreCase("start") == 0)
+						RunningGame.start();
+				});
+			});
 		RunningGame.start();
 		primaryStage.show();
 	}

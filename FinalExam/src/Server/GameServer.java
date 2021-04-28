@@ -22,7 +22,8 @@ public class GameServer {
 	static int numberClients = 0;
 	static boolean login = false;
 	static List<Socket> listSockets;
-	
+	static Socket otherSocket;
+	static boolean ready = false;
 
 	public static void main(String[] args) throws IOException {
 
@@ -43,6 +44,8 @@ public class GameServer {
 						 outPrinter.println("Helo");
 						// check login
 						 login = false;
+						 if(listSockets.size() == 0)
+							 ready = false;
 						while(!login && scanner.hasNext() ) {
 							String[] player = scanner.nextLine().strip().split(",");
 							Connection connect;
@@ -70,51 +73,42 @@ public class GameServer {
 							}
 						}
 							
-						
-						
-
-							
-
-						
-						// check number players
-//						listSockets.removeIf(x -> x.isClosed());
-//						if (listSockets.size() == 3) {
-//							listSockets.stream().forEach(x -> {
-//								PrintWriter outPrint;
-//								try {
-//									outPrint = new PrintWriter(new OutputStreamWriter(x.getOutputStream(), "UTF-8"),
-//											true);
-//									outPrint.println("true");
-//								} catch (IOException e) {
-//									// TODO Auto-generated catch block
-//									e.printStackTrace();
-//								}
-//							});
-//						} else if (listSockets.size() < 3) {
-//							listSockets.stream().forEach(x -> {
-//								PrintWriter outPrint;
-//								try {
-//									outPrint = new PrintWriter(new OutputStreamWriter(x.getOutputStream(), "UTF-8"),
-//											true);
-//									outPrint.println("false");
-//
-//								} catch (IOException e) {
-//									// TODO Auto-generated catch block
-//									e.printStackTrace();
-//								}
-//							});
-//						} else {
-//							outPrinter.println("Enough Players!");
-//							incoming.close();
-//						}
-//						if (incoming.isClosed()) {
-//							listSockets.remove(incoming);
-//							numberClients--;
-//						}
 						if (login) {
+							// check number login
+//							if (listSockets.size() == 2) {
+//								outPrinter.println("true");
+//							} else if (listSockets.size() < 2) {
+//								outPrinter.println("false");
+//							} else {
+//								outPrinter.println("Enough Players!");
+//								incoming.close();
+//							}
+							
 							while (!done && scanner.hasNext()) {
 								String inMes = scanner.nextLine();
+								if(inMes.startsWith("ready")) {
+									if(ready && otherSocket != incoming) {
+										listSockets.stream().forEach(x -> {
+											PrintWriter outPrinter1;
+											try {
+												outPrinter1 = new PrintWriter(
+														new OutputStreamWriter(x.getOutputStream(), "UTF-8"), true);
+												outPrinter1.println("start");
 
+											} catch (IOException e) {
+												// TODO Auto-generated catch block
+												e.printStackTrace();
+											}
+
+										});
+									} else {
+										ready = true;
+										otherSocket = incoming;
+										outPrinter.println("waiting");
+									}
+									
+									continue;
+								}
 								listSockets.removeIf(x -> x.isClosed());
 								listSockets.stream().filter(x -> x != incoming).forEach(x -> {
 									PrintWriter outPrinter1;

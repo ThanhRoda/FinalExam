@@ -48,8 +48,6 @@ public class LoginController {
 
 	private GameClient client;
 
-	private final String serverName = "localhost";
-	private final int port = 6666;
 
 	@FXML
 	void dogister(ActionEvent event) throws IOException {
@@ -82,6 +80,7 @@ public class LoginController {
 			});
 		}
 		if (data.startsWith("Success")) {
+			//this.client.send("ready");
 			 Platform.runLater(() -> {
 					message.setText(data);
 					message.setTextFill(Color.web("#13ee1a"));
