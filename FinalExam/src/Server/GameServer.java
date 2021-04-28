@@ -41,36 +41,41 @@ public class GameServer {
 									new OutputStreamWriter(incoming.getOutputStream(), "UTF-8"), true);) {
 						boolean done = false;
 						 outPrinter.println("Helo");
-						System.out.println("CONCCA");
 						// check login
-						scanner.hasNext();
-						String[] player = scanner.nextLine().strip().split(",");
-						Connection connect;
-						try {
-							connect = DriverManager.getConnection(DS_URL);
-							Statement stmt = connect.createStatement();
-							String sql = "SELECT * FROM Players WHERE UserName ='" + player[0].strip() + "'";
-							ResultSet res = stmt.executeQuery(sql);
-							if (res.next()) {
-								String passRes = res.getString("Password").strip();
-								if (player[1].strip().compareTo(passRes) == 0) {
-									outPrinter.println("Success");
-									login = true;
-								} else {
-									outPrinter.println("Fail! Password incorrect");
-								}
+						 login = false;
+						while(!login && scanner.hasNext() ) {
+							String[] player = scanner.nextLine().strip().split(",");
+							Connection connect;
+							try {
+								connect = DriverManager.getConnection(DS_URL);
+								Statement stmt = connect.createStatement();
+								String sql = "SELECT * FROM Players WHERE UserName ='" + player[0].strip() + "'";
+								ResultSet res = stmt.executeQuery(sql);
+								if (res.next()) {
+									String passRes = res.getString("Password").strip();
+									if (player[1].strip().compareTo(passRes) == 0) {
+										outPrinter.println("Success");
+										login = true;
+									} else {
+										outPrinter.println("Fail! Password incorrect");
+									}
 
-							} else
-								outPrinter.println("Fail! Invalid user name");
+								} else
+									outPrinter.println("Fail! Invalid user name");
 
-							connect.close();
+								connect.close();
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+							
+						
+						
 
 							
 
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						
 						// check number players
 //						listSockets.removeIf(x -> x.isClosed());
 //						if (listSockets.size() == 3) {

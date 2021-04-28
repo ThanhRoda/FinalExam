@@ -70,7 +70,6 @@ public class SupperPlaneGame extends Application {
 					primaryStage.close();
 					SupperPlaneGame.gameScene(primaryStage);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	            });
