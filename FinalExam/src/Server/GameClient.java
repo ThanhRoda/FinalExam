@@ -19,6 +19,11 @@ public class GameClient {
 		this.port = port;
 		this.handle = handle;
 	}
+	public GameClient(String iPAddress, int port) {
+		super();
+		this.IPAddress = iPAddress;
+		this.port = port;
+	}
 	
 	public void seHandle(Consumer<String> han) {
 		this.handle = han;

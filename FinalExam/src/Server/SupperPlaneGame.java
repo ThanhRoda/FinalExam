@@ -9,12 +9,16 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Scanner;
-import application.BaseLayout;
+
+import Game.BaseLayout;
+import Game.LoginController;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -36,6 +40,10 @@ public class SupperPlaneGame extends Application {
 	static String socketValue = "";
 	static PrintWriter outPrinter;
 	static AnimationTimer RunningGame;
+	static Socket socket;
+	private final String serverName = "localhost";
+	private final int port = 6666;
+	static GameClient client;
 
 	public static void main(String[] args) {
 		try {
@@ -53,31 +61,37 @@ public class SupperPlaneGame extends Application {
 		// Login screen
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/Game/Login.fxml"));
 		Parent root = loader.load();
+		LoginController con = (LoginController) loader.getController();
+		client = new GameClient(serverName, port, data -> {
+			con.setMessage(data);
+			if(data.startsWith("Success"))
+				Platform.runLater(() -> {
+					try {
+					primaryStage.close();
+					SupperPlaneGame.gameScene(primaryStage);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	            });
+		});
+		con.setClient(client);
+		client.connectSocket();
 		Scene sc = new Scene(root);
-		primaryStage.setScene(sc); // set the scene
+		primaryStage.setScene(sc); 
+		
 		primaryStage.setTitle("TooPin");
-
 		primaryStage.show();
 	}
 
 
-	public static void gameScene(Stage primaryStage, Socket s) throws IOException {
+	public static void gameScene(Stage primaryStage) throws IOException {
 		
-		outPrinter = new PrintWriter(new OutputStreamWriter(s.getOutputStream(), "UTF-8"), true);
 		Runnable task1 = () -> {
-				try {
-					OutputStream output = s.getOutputStream();
-					try (Scanner in = new Scanner(s.getInputStream(), "UTF-8")) {
-						outPrinter = new PrintWriter(new OutputStreamWriter(output, "UTF-8"), true);
-						while (in.hasNext()) {
-							socketValue = in.nextLine().strip();
-							if (socketValue.equalsIgnoreCase("true"))
-								RunningGame.start();
-						}
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			client.seHandle(data -> {
+				socketValue = data;
+				System.out.println(socketValue);
+			});						
 		};
 
 		SPEED_OBS = 50;
@@ -135,7 +149,8 @@ public class SupperPlaneGame extends Application {
 				if (keyPressList.contains("UP")) {
 					if (plane.position.y - 10 > 10)
 						plane.position.set(plane.position.x, plane.position.y - 10);
-					outPrinter.println(plane.position.y);
+				//	outPrinter.println(plane.position.y);
+					client.send(String.valueOf(plane.position.y));
 
 				}
 
@@ -151,7 +166,7 @@ public class SupperPlaneGame extends Application {
 
 					if (plane.position.y + 10 < 590)
 						plane.position.set(plane.position.x, plane.position.y + 10);
-					outPrinter.println(plane.position.y);
+					client.send(String.valueOf(plane.position.y));
 				}
 				if (socketValue.compareToIgnoreCase("SPACE") == 0) {
 					socketValue = "noThing";
@@ -161,7 +176,7 @@ public class SupperPlaneGame extends Application {
 					gunList2.add(gun);
 				}
 				if (keyJustPressList.contains("SPACE")) {
-					outPrinter.println("SPACE");
+					client.send(String.valueOf("SPACE"));
 					BaseLayout gun = new BaseLayout("/rocket.png");
 					gun.position.set(plane.position.x + plane.image.getWidth() / 2.0, plane.position.y);
 					gun.speedMovement.setLength(300);
@@ -223,14 +238,14 @@ public class SupperPlaneGame extends Application {
 				context.setStroke(Color.GREEN);
 				context.setFont(new Font("Arial Black", 30));
 
-				if (socketValue.compareToIgnoreCase("false") == 0) {
-					stop();
-				}
-				if (socketValue.compareToIgnoreCase("true") == 0) {
-					String textUser = "Start Game";
-					context.fillText(textUser, 450, 300);
-					context.strokeText(textUser, 450, 300);
-				}
+//				if (socketValue.compareToIgnoreCase("false") == 0) {
+//					stop();
+//				}
+//				if (socketValue.compareToIgnoreCase("true") == 0) {
+//					String textUser = "Start Game";
+//					context.fillText(textUser, 450, 300);
+//					context.strokeText(textUser, 450, 300);
+//				}
 				
 			}
 		};
@@ -244,5 +259,6 @@ public class SupperPlaneGame extends Application {
 		alert.setTitle("Inform Server");
 		alert.setHeaderText("Server");
 		alert.setContentText(mess);
+		alert.show();
 	}
 }

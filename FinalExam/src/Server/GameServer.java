@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import application.PlaySingleton;
 import javafx.scene.paint.Color;
 
 public class GameServer {
@@ -23,6 +22,7 @@ public class GameServer {
 	static int numberClients = 0;
 	static boolean login = false;
 	static List<Socket> listSockets;
+	
 
 	public static void main(String[] args) throws IOException {
 
@@ -40,8 +40,8 @@ public class GameServer {
 							PrintWriter outPrinter = new PrintWriter(
 									new OutputStreamWriter(incoming.getOutputStream(), "UTF-8"), true);) {
 						boolean done = false;
-						// outPrinter.println("Helo");
-
+						 outPrinter.println("Helo");
+						System.out.println("CONCCA");
 						// check login
 						scanner.hasNext();
 						String[] player = scanner.nextLine().strip().split(",");
@@ -65,45 +65,43 @@ public class GameServer {
 
 							connect.close();
 
-							// check number players
-							listSockets.removeIf(x -> x.isClosed());
-							if (listSockets.size() == 2) {
-								listSockets.stream().forEach(x -> {
-									PrintWriter outPrint;
-									try {
-										outPrint = new PrintWriter(new OutputStreamWriter(x.getOutputStream(), "UTF-8"),
-												true);
-										outPrint.println("true");
-
-									} catch (IOException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-								});
-
-							} else if (listSockets.size() < 2) {
-								listSockets.stream().forEach(x -> {
-									PrintWriter outPrint;
-									try {
-										outPrint = new PrintWriter(new OutputStreamWriter(x.getOutputStream(), "UTF-8"),
-												true);
-										outPrint.println("false");
-
-									} catch (IOException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-								});
-							} else {
-								outPrinter.println("Enough Players!");
-								incoming.close();
-							}
+							
 
 						} catch (SQLException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-
+						// check number players
+//						listSockets.removeIf(x -> x.isClosed());
+//						if (listSockets.size() == 3) {
+//							listSockets.stream().forEach(x -> {
+//								PrintWriter outPrint;
+//								try {
+//									outPrint = new PrintWriter(new OutputStreamWriter(x.getOutputStream(), "UTF-8"),
+//											true);
+//									outPrint.println("true");
+//								} catch (IOException e) {
+//									// TODO Auto-generated catch block
+//									e.printStackTrace();
+//								}
+//							});
+//						} else if (listSockets.size() < 3) {
+//							listSockets.stream().forEach(x -> {
+//								PrintWriter outPrint;
+//								try {
+//									outPrint = new PrintWriter(new OutputStreamWriter(x.getOutputStream(), "UTF-8"),
+//											true);
+//									outPrint.println("false");
+//
+//								} catch (IOException e) {
+//									// TODO Auto-generated catch block
+//									e.printStackTrace();
+//								}
+//							});
+//						} else {
+//							outPrinter.println("Enough Players!");
+//							incoming.close();
+//						}
 //						if (incoming.isClosed()) {
 //							listSockets.remove(incoming);
 //							numberClients--;
@@ -126,7 +124,7 @@ public class GameServer {
 									}
 
 								});
-								;
+								
 								if (inMes.trim().equals("BYE")) {
 									done = true;
 									incoming.close();

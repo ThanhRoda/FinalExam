@@ -61,51 +61,35 @@ public class LoginController {
 	public void doLogin(ActionEvent event) {
 		String name = userNameTf.getText();
 		String pass = passTxt.getText();
-		String rs = "";
 		if (name.isEmpty() || pass.isEmpty()) {
 			message.setTextFill(Color.RED);
 			if (name.isEmpty())
-				rs = "Enter UserName!";
+				message.setText("Enter UserName!");
 			else
-				rs = "Enter Password!";
+				message.setText("Enter Password!");
 		} else {
-			loginSql(name, pass, getClass(), event);
+			client.send(name+","+pass);
 		}
 
 	}
 
-	public void loginSql(String userName, String passwor, Class<?> c, ActionEvent event) {
-		client = new GameClient(serverName, port, data -> {
-			if (data.startsWith("Fail")) {
-				
-				Platform.runLater(() -> {
+	public void setMessage(String data) {
+		if (data.startsWith("Fail")) {
+			
+			Platform.runLater(() -> {
+				message.setText(data);
+				message.setTextFill(Color.RED);
+			});
+		}
+		if (data.startsWith("Success")) {
+			 Platform.runLater(() -> {
 					message.setText(data);
-					message.setTextFill(Color.RED);
+					message.setTextFill(Color.web("#13ee1a"));
 				});
-			}
-			else if (data.startsWith("Success")) {
-				 Platform.runLater(() -> {
-						message.setText(data);
-						message.setTextFill(Color.web("#13ee1a"));
-					});
-				
-				//join game
-					Platform.runLater(() -> {
-						try {
-						Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-						stage.close();
-						SupperPlaneGame.gameScene(stage, client.getSocket());
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-		            });
-					
-			}
-		});
-		client.connectSocket();
-		client.send(userName+","+passwor);
-
-}
+		}
+	}
+	public void setClient(GameClient c) {
+		this.client = c;
+	}
 
 }

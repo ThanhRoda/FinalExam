@@ -84,7 +84,6 @@ public class BaseLayout {
 			context.translate(-this.image.getWidth() / 2, -this.image.getHeight() / 2);
 			context.drawImage(this.image, 0, 0);
 		}
-
 		context.restore();
 	}
 }
