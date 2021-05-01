@@ -34,8 +34,6 @@ import javafx.stage.Stage;
 
 public class SupperPlaneGame extends Application {
 	static int SPEED_OBS = 50;
-	static int MAXOBSTACLES = 10;
-	static int score = 0;
 	static boolean isLogin;
 	static String socketValue = "";
 	static PrintWriter outPrinter;
@@ -44,6 +42,8 @@ public class SupperPlaneGame extends Application {
 	private final String serverName = "localhost";
 	private final int port = 6666;
 	static GameClient client;
+	static int clientNumber;
+	static BaseLayout mainPlayer;
 
 	public static void main(String[] args) {
 		try {
@@ -64,29 +64,27 @@ public class SupperPlaneGame extends Application {
 		LoginController con = (LoginController) loader.getController();
 		client = new GameClient(serverName, port, data -> {
 			con.setMessage(data);
-			if(data.startsWith("Success"))
+			if (data.startsWith("Success"))
 				Platform.runLater(() -> {
 					try {
-					primaryStage.close();
-					SupperPlaneGame.gameScene(primaryStage);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-	            });
+						primaryStage.close();
+						SupperPlaneGame.gameScene(primaryStage);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				});
 		});
 		con.setClient(client);
 		client.connectSocket();
 		Scene sc = new Scene(root);
-		primaryStage.setScene(sc); 
-		
+		primaryStage.setScene(sc);
+
 		primaryStage.setTitle("TooPin");
 		primaryStage.show();
 	}
 
-
 	public static void gameScene(Stage primaryStage) throws IOException {
 		SPEED_OBS = 50;
-		score = 0;
 		primaryStage.setTitle("Supper Plane");
 
 		BorderPane root = new BorderPane();
@@ -116,7 +114,7 @@ public class SupperPlaneGame extends Application {
 		ArrayList<BaseLayout> gunList = new ArrayList<>();
 		ArrayList<BaseLayout> gunList2 = new ArrayList<>();
 		ArrayList<BaseLayout> gunList3 = new ArrayList<>();
-		
+
 		BaseLayout background = new BaseLayout("/background.jpg");
 		background.position.set(500, 300);
 
@@ -125,49 +123,96 @@ public class SupperPlaneGame extends Application {
 
 		BaseLayout plane2 = new BaseLayout("/player2.png");
 		plane2.position.set(900, 150);
-		
+
 		BaseLayout plane3 = new BaseLayout("/player2.png");
 		plane3.position.set(900, 450);
+
+		mainPlayer = new BaseLayout("/player2.png");
+		mainPlayer.position.set(-100, -100);
 
 		RunningGame = new AnimationTimer() {
 
 			@Override
 			public void handle(long now) {
-				if (keyPressList.contains("UP")) {
-					if (plane.position.y - 10 > 10)
-						plane.position.set(plane.position.x, plane.position.y - 10);
-					client.send(String.valueOf(plane.position.y));
-				}
 
-				try {
-					if (Double.parseDouble(socketValue) > 0) {
-						plane2.position.set(plane2.position.x, Double.parseDouble(socketValue));
+				if (keyPressList.contains("UP")) {
+					if (mainPlayer.position.y - 10 > 10)
+						mainPlayer.position.set(mainPlayer.position.x, mainPlayer.position.y - 10);
+					client.send("Cor " + String.valueOf(mainPlayer.position.y) + " " + clientNumber);
+				}
+				if (socketValue.startsWith("Cor")) {
+					String[] data = socketValue.strip().split(" ");
+					int temp = Integer.parseInt(data[2]);
+					switch (temp) {
+					case 0:
+						plane.position.set(plane.position.x, Double.parseDouble(data[1]));
+						break;
+					case 1:
+						plane2.position.set(plane2.position.x, Double.parseDouble(data[1]));
+						break;
+					case 2:
+						plane3.position.set(plane3.position.x, Double.parseDouble(data[1]));
+						break;
 					}
-				} catch (Exception e) {
-					// TODO: handle exception
 				}
 
 				if (keyPressList.contains("DOWN")) {
 
-					if (plane.position.y + 10 < 590)
-						plane.position.set(plane.position.x, plane.position.y + 10);
-					client.send(String.valueOf(plane.position.y));
+					if (mainPlayer.position.y + 10 < 590)
+						mainPlayer.position.set(mainPlayer.position.x, mainPlayer.position.y + 10);
+					client.send("Cor " + String.valueOf(mainPlayer.position.y) + " " + clientNumber);
 				}
-				if (socketValue.compareToIgnoreCase("SPACE") == 0) {
+				if (socketValue.startsWith("SPACE")) {
+					int temp = Integer.parseInt(socketValue.strip().split(" ")[1]);
+					switch (temp) {
+					case 0:
+						BaseLayout gun = new BaseLayout("/rocket.png");
+						gun.position.set(plane.position.x - plane.image.getWidth() / 2.0, plane.position.y);
+						gun.speedMovement.setLength(300);
+						gunList.add(gun);
+						break;
+					case 1:
+						BaseLayout gun2 = new BaseLayout("/rocket2.png");
+						gun2.position.set(plane2.position.x - plane2.image.getWidth() / 2.0, plane2.position.y);
+						gun2.speedMovement.setLength(300);
+						gunList2.add(gun2);
+						break;
+					case 2:
+						BaseLayout gun3 = new BaseLayout("/rocket2.png");
+						gun3.position.set(plane3.position.x - plane3.image.getWidth() / 2.0, plane3.position.y);
+						gun3.speedMovement.setLength(300);
+						gunList3.add(gun3);
+						break;
+					}
 					socketValue = "noThing";
-					BaseLayout gun = new BaseLayout("/rocket2.png");
-					gun.position.set(plane2.position.x - plane2.image.getWidth() / 2.0, plane2.position.y);
-					gun.speedMovement.setLength(300);
-					gunList2.add(gun);
-				} 
+
+				}
 				if (keyJustPressList.contains("SPACE")) {
-					client.send(String.valueOf("SPACE"));
-					BaseLayout gun = new BaseLayout("/rocket.png");
-					gun.position.set(plane.position.x + plane.image.getWidth() / 2.0, plane.position.y);
+					client.send(String.valueOf("SPACE ") + clientNumber);
+					BaseLayout gun;
+					if(clientNumber == 0 ) {
+						gun = new BaseLayout("/rocket.png");
+					}
+						
+					else 
+						gun = new BaseLayout("/rocket2.png");
+					gun.position.set(mainPlayer.position.x - mainPlayer.image.getWidth() / 2.0, mainPlayer.position.y);
 					gun.speedMovement.setLength(300);
-					gunList.add(gun);
+					switch (clientNumber) {
+					case 0:
+						gunList.add(gun);
+						break;
+					case 1:
+						gunList2.add(gun);
+						break;
+					case 2:
+						gunList3.add(gun);
+						break;
+					}
+
 				}
 				keyJustPressList.clear();
+				
 				for (int j = 0; j < gunList.size(); j++) {
 					BaseLayout gun = gunList.get(j);
 					gun.moveForward(1 / 60.0);
@@ -180,35 +225,136 @@ public class SupperPlaneGame extends Application {
 					if (gun.position.x < 0)
 						gunList2.remove(gun);
 				}
-
-
-				for (int j = 0; j < gunList.size(); j++) {
-					BaseLayout gun = gunList.get(j);
-					if (gun.isOverLap(plane2)) {
-						plane2.exlosing = true;
-						gunList.remove(gun);
-					}
-				}
-				for (int j = 0; j < gunList2.size(); j++) {
-					BaseLayout gun = gunList2.get(j);
-					if (gun.isOverLap(plane)) {
-						plane.exlosing = true;
-						gunList2.remove(gun);
-					}
-				}
-				if (plane2.isOverLap(plane3)) {
-					plane2.exlosing = true;
-					plane3.exlosing = true;
-				}
 				for (int j = 0; j < gunList3.size(); j++) {
 					BaseLayout gun = gunList3.get(j);
-					if (gun.isOverLap(plane)) {
-						plane.exlosing = true;
+					gun.moveBackward(1 / 60.0);
+					if (gun.position.x < 0)
 						gunList3.remove(gun);
+				}
+				
+				
+				switch (clientNumber) {
+				case 0:
+					// main plane = plane1
+					for (int j = 0; j < gunList3.size(); j++) {
+						BaseLayout gun = gunList3.get(j);
+						if (gun.isOverLap(mainPlayer)) {
+							mainPlayer.exlosing = true;
+							gunList3.remove(gun);
+						}
 					}
+					for (int j = 0; j < gunList2.size(); j++) {
+						BaseLayout gun = gunList2.get(j);
+						if (gun.isOverLap(mainPlayer)) {
+							mainPlayer.exlosing = true;
+							gunList2.remove(gun);
+						}
+					}
+					
+					// plane2 checking
+					for (int j = 0; j < gunList.size(); j++) {
+						BaseLayout gun = gunList.get(j);
+						if (gun.isOverLap(plane2)) {
+							plane2.exlosing = true;
+							gunList.remove(gun);
+						}
+					}
+					// plane3 checking
+					for (int j = 0; j < gunList.size(); j++) {
+						BaseLayout gun = gunList.get(j);
+						if (gun.isOverLap(plane3)) {
+							plane3.exlosing = true;
+							gunList.remove(gun);
+						}
+					}
+					// plane2 vs plane3 checking overlap
+					if (plane3.isOverLap(plane2)) {
+						plane2.exlosing = true;
+						plane3.exlosing = true;
+					}
+					break;
+				case 1:
+					
+					// plane2 checking
+					for (int j = 0; j < gunList.size(); j++) {
+						BaseLayout gun = gunList.get(j);
+						if (gun.isOverLap(mainPlayer)) {
+							mainPlayer.exlosing = true;
+							gunList.remove(gun);
+						}
+					}
+					// plane3 checking
+					for (int j = 0; j < gunList.size(); j++) {
+						BaseLayout gun = gunList.get(j);
+						if (gun.isOverLap(plane3)) {
+							plane3.exlosing = true;
+							gunList.remove(gun);
+						}
+					}
+					//  plane1
+					for (int j = 0; j < gunList3.size(); j++) {
+						BaseLayout gun = gunList3.get(j);
+						if (gun.isOverLap(plane)) {
+							plane.exlosing = true;
+							gunList3.remove(gun);
+						}
+					}
+					for (int j = 0; j < gunList2.size(); j++) {
+						BaseLayout gun = gunList2.get(j);
+						if (gun.isOverLap(plane)) {
+							plane.exlosing = true;
+							gunList2.remove(gun);
+						}
+					}
+					// plane2 vs plane3 checking overlap
+					if (mainPlayer.isOverLap(plane3)) {
+						mainPlayer.exlosing = true;
+						plane3.exlosing = true;
+					}
+					break;
+				case 2:
+					// plane2 checking
+					for (int j = 0; j < gunList.size(); j++) {
+						BaseLayout gun = gunList.get(j);
+						if (gun.isOverLap(mainPlayer)) {
+							mainPlayer.exlosing = true;
+							gunList.remove(gun);
+						}
+					}
+					// plane3 checking
+					for (int j = 0; j < gunList.size(); j++) {
+						BaseLayout gun = gunList.get(j);
+						if (gun.isOverLap(plane2)) {
+							plane2.exlosing = true;
+							gunList.remove(gun);
+						}
+					}
+					//  plane1
+					for (int j = 0; j < gunList3.size(); j++) {
+						BaseLayout gun = gunList3.get(j);
+						if (gun.isOverLap(plane)) {
+							plane.exlosing = true;
+							gunList3.remove(gun);
+						}
+					}
+					for (int j = 0; j < gunList2.size(); j++) {
+						BaseLayout gun = gunList2.get(j);
+						if (gun.isOverLap(plane)) {
+							plane.exlosing = true;
+							gunList2.remove(gun);
+						}
+					}
+					// plane2 vs plane3 checking overlap
+					if (mainPlayer.isOverLap(plane2)) {
+						mainPlayer.exlosing = true;
+						plane2.exlosing = true;
+					}
+					break;
 				}
 
 				background.render(context);
+				mainPlayer.update();
+				mainPlayer.render(context);
 				plane.update();
 				plane.render(context);
 				plane2.update();
@@ -216,53 +362,78 @@ public class SupperPlaneGame extends Application {
 				plane3.update();
 				plane3.render(context);
 
-				if (plane.destroy || plane2.destroy || plane3.destroy ) {
-					stop();
-					if (plane2.destroy || plane3.destroy)
-						context.fillText("You Win", 450, 300);
-					else
-						context.fillText("You Lose", 450, 300);
-
-				}
 				context.setFill(Color.WHITE);
 				context.setStroke(Color.GREEN);
 				context.setFont(new Font("Arial Black", 30));
 
-				if (socketValue.compareToIgnoreCase("waiting") == 0) {
+				if (socketValue.startsWith("waiting")) {
 					String textUser = "Matching ...";
 					context.fillText(textUser, 450, 300);
 					context.strokeText(textUser, 450, 300);
 					stop();
 				}
-				if (socketValue.compareToIgnoreCase("start") == 0) {
-					socketValue ="nothing";
+				if (socketValue.startsWith("start")) {
+					socketValue = "nothing";
 					String textUser = "Start Game";
 					context.fillText(textUser, 450, 300);
 					context.strokeText(textUser, 450, 300);
 				}
+				if (socketValue.startsWith("result")) {
+					String result = socketValue.split(",")[1];
+					context.fillText(result, 450, 300);
+					context.strokeText(result, 450, 300);
+					stop();
+				}
+				if (plane.destroy || plane2.destroy || plane3.destroy || mainPlayer.destroy) {
+					if (plane2.destroy || plane3.destroy)
+						client.send("dead 1");
+					else if (plane.destroy) {
+						client.send("dead 0" );
+					} else 
+						client.send("dead "+ clientNumber );
+					//stop();
+				}
+				String textUser = String.valueOf(clientNumber);
+				context.fillText(textUser, 450, 100);
+				context.strokeText(textUser, 450, 100);
 				for (BaseLayout gun : gunList) {
 					gun.render(context);
 				}
 				for (BaseLayout gun : gunList2) {
 					gun.render(context);
 				}
-				
+				for (BaseLayout gun : gunList3) {
+					gun.render(context);
+				}
+
 			}
 		};
-		
 		client.seHandle(data -> {
-				socketValue = data;
-				System.out.println(socketValue);
-				Platform.runLater(() -> {
-					if (socketValue.compareToIgnoreCase("start") == 0) {
-						gunList.clear();
-						gunList2.clear();
-						RunningGame.start();
+			socketValue = data;
+			Platform.runLater(() -> {
+				if (data.startsWith("waiting")) {
+					clientNumber = Integer.parseInt(data.strip().split(" ")[1]);
+					mainPlayer = chooseMainplayer(clientNumber);
+				}
+				if (data.startsWith("start")) {
+					RunningGame.start();
+					switch (clientNumber) {
+			        case 0:
+			        	plane.position.set(-100, -100);
+			            break;
+			        case 1:
+			        	plane2.position.set(-100, -100);
+			            break;
+			        case 2:
+			        	plane3.position.set(-100, -100); 
+			            break;
 					}
-						
-				});
+					
+				}
 			});
+		});
 		client.send("ready");
+
 		RunningGame.start();
 		primaryStage.show();
 	}
@@ -273,5 +444,27 @@ public class SupperPlaneGame extends Application {
 		alert.setHeaderText("Server");
 		alert.setContentText(mess);
 		alert.show();
+	}
+
+	public static BaseLayout chooseMainplayer(int number) {
+		System.out.println("NUmber: " + number);
+		switch (number) {
+		case 0:
+			BaseLayout plane = new BaseLayout("/player.png");
+			plane.position.set(100, 300);
+			return plane;
+		case 1:
+			BaseLayout plane2 = new BaseLayout("/player2.png");
+			plane2.position.set(900, 150);
+			return plane2;
+		case 2:
+			BaseLayout plane3 = new BaseLayout("/player2.png");
+			plane3.position.set(900, 450);
+			return plane3;
+		default:
+			BaseLayout plane4 = new BaseLayout("/player2.png");
+			plane4.position.set(900, 450);
+			return plane4;
+		}
 	}
 }

@@ -71,6 +71,9 @@ public class BaseLayout {
 			explosionStep += 0.02;
 		destroy = explosionStep > EXPLOSION_STEPS;
 	}
+	public void remove(GraphicsContext context) {
+		context.translate(-100, -100);
+	}
 
 	public void render(GraphicsContext context) {
 		context.save();
@@ -79,7 +82,8 @@ public class BaseLayout {
 					(explosionStep / EXPLOSION_ROWS) * EXPLOSION_H + 1, EXPLOSION_W, EXPLOSION_H, this.position.x - 40,
 					this.position.y - 40, 100, 100);
 			explosionStep++;
-		} else {
+		} else 
+		{
 			context.translate(this.position.x, this.position.y);
 			context.translate(-this.image.getWidth() / 2, -this.image.getHeight() / 2);
 			context.drawImage(this.image, 0, 0);
