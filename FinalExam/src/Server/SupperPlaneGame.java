@@ -1,30 +1,21 @@
 package Server;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Scanner;
 
 import Game.BaseLayout;
 import Game.LoginController;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -167,7 +158,7 @@ public class SupperPlaneGame extends Application {
 					switch (temp) {
 					case 0:
 						BaseLayout gun = new BaseLayout("/rocket.png");
-						gun.position.set(plane.position.x - plane.image.getWidth() / 2.0, plane.position.y);
+						gun.position.set(plane.position.x + plane.image.getWidth() / 2.0, plane.position.y);
 						gun.speedMovement.setLength(300);
 						gunList.add(gun);
 						break;
@@ -419,13 +410,13 @@ public class SupperPlaneGame extends Application {
 					RunningGame.start();
 					switch (clientNumber) {
 			        case 0:
-			        	plane.position.set(-100, -100);
+			        	plane.remove();
 			            break;
 			        case 1:
-			        	plane2.position.set(-100, -100);
+			        	plane2.remove();
 			            break;
 			        case 2:
-			        	plane3.position.set(-100, -100); 
+			        	plane3.remove();
 			            break;
 					}
 					

@@ -1,27 +1,12 @@
 package Game;
 
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.Scanner;
-
-import com.sun.tools.attach.AgentInitializationException;
 
 import Server.GameClient;
-import Server.SupperPlaneGame;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 

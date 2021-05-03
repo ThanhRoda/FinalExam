@@ -71,8 +71,8 @@ public class BaseLayout {
 			explosionStep += 0.02;
 		destroy = explosionStep > EXPLOSION_STEPS;
 	}
-	public void remove(GraphicsContext context) {
-		context.translate(-100, -100);
+	public void remove() {
+		this.position.set(-100, -100);
 	}
 
 	public void render(GraphicsContext context) {

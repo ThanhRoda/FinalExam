@@ -14,9 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import Game.GameSingleton;
-import javafx.scene.paint.Color;
-
 public class GameServer {
 	final static String DS_URL = "jdbc:derby:PlaneDB";
 	static boolean gameStatus = false;
