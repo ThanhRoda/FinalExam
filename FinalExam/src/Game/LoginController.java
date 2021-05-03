@@ -13,6 +13,13 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 
+
+/** 
+ * The Login Controller class displays login scene and used to control login action and components. 
+ * It validates, sends username, password from client to server and receives message from server to client. 
+ * @param client: The parameter is to send data from client to server.
+ * @param loginBtn: The parameter is to do login action.
+ */
 public class LoginController {
 	@FXML
 	private Label loginID;
@@ -33,13 +40,13 @@ public class LoginController {
 
 	private GameClient client;
 
-
 	@FXML
 	void dogister(ActionEvent event) throws IOException {
 		Main.moveScene(getClass(), event, "Register.fxml");
 	}
 
 	// Event Listener on Button[#loginBtn].onAction
+	// send data(username, password) to server
 	@FXML
 	public void doLogin(ActionEvent event) {
 		String name = userNameTf.getText();
@@ -55,7 +62,8 @@ public class LoginController {
 		}
 
 	}
-
+	
+	//when clients wrongly access, server will send a notification to client stored in variable "data" and display a message on login scene.
 	public void setMessage(String data) {
 		if (data.startsWith("Fail")) {
 			
@@ -65,7 +73,6 @@ public class LoginController {
 			});
 		}
 		if (data.startsWith("Success")) {
-			//this.client.send("ready");
 			 Platform.runLater(() -> {
 					message.setText(data);
 					message.setTextFill(Color.web("#13ee1a"));

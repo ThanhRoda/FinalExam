@@ -5,6 +5,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/***
+ * <h1>User Database</h1>
+ * The class PlaneDB is used to create database with one table storing username and password. 
+ */
 public class PlaneDB {
 	public static void main(String[] args) {
 		// Create a named constant for the URL.

@@ -11,6 +11,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 
+/**
+ * <h1>Space Battle Game</h1>
+ * The Space Battle program implements an JavaFX application simply displays applications
+ *  which can simulate a battle game in which its users can play in pairs or a group 
+ *  of three and use the keyboard to control fighting planes to fire at each other. 
+ * @author RodaThanh, ETanTai, KhangLai
+ * @version Closed-Beta
+ * @since 2021-05-04
+ *
+ */
 public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {

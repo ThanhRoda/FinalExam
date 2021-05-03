@@ -6,6 +6,14 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
+/**
+ * The GameClient class is to receive IP address, port of the server to connect via sockets,
+ * and handle method is to accept the data from the server and do things in orders.
+ * @param IPaddress: The parameter is to receive the server's IP address to connect.
+ * @param port: The parameter is to receive the server's using port.
+ * @param handle: The parameter is a string array to handle actions by strings.
+ * @param out: The parameter is to write data to send back to the server.
+ */
 public class GameClient {
 	private String IPAddress;
 	private int port;
@@ -25,10 +33,11 @@ public class GameClient {
 		this.port = port;
 	}
 	
-	public void seHandle(Consumer<String> han) {
+	public void setHandle(Consumer<String> han) {
 		this.handle = han;
 	}
 	
+	// connect to the server via sockets with the IP address and port.
 	public void connectSocket() {
 		try {
 			this.socket = new Socket();

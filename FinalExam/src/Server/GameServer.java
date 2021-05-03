@@ -14,19 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * The GameServer class implements a sockets list to store clients's sockets, 
+ * to check data whether clients access wrong or right, 
+ * count the numbers of players.
+ * @param DS_URL: The parameter is to link to jdbc:PlaneDB.
+ * @param login: The parameter is to define the login action is true or false.
+ * @param loginNumer: The parameter is to count the numbers of players accessing successfully (maximum is 3). * 
+ */
 public class GameServer {
 	final static String DS_URL = "jdbc:derby:PlaneDB";
-	static boolean gameStatus = false;
+//	static boolean gameStatus = false;
 	static int numberClients = 0;
 	static boolean login = false;
 	static int loginNumber = -1;
 	static List<Socket> listSockets;
 
 	public static void main(String[] args) throws IOException {
-
 		listSockets = new ArrayList<>();
 		try (ServerSocket s = new ServerSocket(6666)) {
-
+			
 			while (true) {
 				Socket incoming = s.accept();
 				numberClients++;
@@ -41,7 +48,8 @@ public class GameServer {
 						outPrinter.println("Helo");
 						// check login
 						login = false;
-
+						
+						// server validates username and password from client then send message back to it.
 						while (!login && scanner.hasNext()) {
 							String[] player = scanner.nextLine().strip().split(",");
 							Connection connect;

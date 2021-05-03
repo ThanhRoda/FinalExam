@@ -23,14 +23,28 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/**
+ * The SupperPlaneGame class extends Application to locate to the login page,
+ * then run the game.
+ * 
+ * @param serverName:   The parameter is to stored the server's IP address.
+ * @param clientNumber: The parameter is to define the order of players logged
+ *                      in successfully.
+ * @param mainPlayer:   The parameter is to display the main object that is in
+ *                      used (clients or server).
+ * @param RunningGame:  The parameter is a loop of the game.
+ * @param port:         The parameter is to set the server's port.
+ * @param socketValue:  The parameter is to receive values and data through
+ *                      socket from the server. *
+ */
 public class SupperPlaneGame extends Application {
-	static int SPEED_OBS = 50;
+	static int SPEED_OBS = 50; 
 	static boolean isLogin;
 	static String socketValue = "";
 	static PrintWriter outPrinter;
 	static AnimationTimer RunningGame;
 	static Socket socket;
-	private final String serverName = "localhost";
+	private final String serverName = "192.168.100.62"; //is to stored the server's IP address.
 	private final int port = 6666;
 	static GameClient client;
 	static int clientNumber;
@@ -44,9 +58,9 @@ public class SupperPlaneGame extends Application {
 		} finally {
 			System.exit(0);
 		}
-
 	}
 
+	// login scene
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// Login screen
@@ -65,27 +79,31 @@ public class SupperPlaneGame extends Application {
 					}
 				});
 		});
+		// send client components to Login Controller
 		con.setClient(client);
 		client.connectSocket();
 		Scene sc = new Scene(root);
 		primaryStage.setScene(sc);
 
-		primaryStage.setTitle("TooPin");
+		primaryStage.setTitle("Space Battle");
 		primaryStage.show();
 	}
 
+	// game environment
 	public static void gameScene(Stage primaryStage) throws IOException {
 		SPEED_OBS = 50;
-		primaryStage.setTitle("Supper Plane");
+		primaryStage.setTitle("Super Plane");
 
 		BorderPane root = new BorderPane();
 		Scene sc = new Scene(root);
 		primaryStage.setScene(sc);
 
+		// create a canvas
 		Canvas canvas = new Canvas(1000, 600);
 		GraphicsContext context = canvas.getGraphicsContext2D();
 		root.setCenter(canvas);
 
+		// array of key on press listeners.
 		ArrayList<String> keyPressList = new ArrayList<>();
 		ArrayList<String> keyJustPressList = new ArrayList<>();
 
@@ -102,6 +120,7 @@ public class SupperPlaneGame extends Application {
 				keyPressList.remove(keyname);
 		});
 
+		// store each player's rockets
 		ArrayList<BaseLayout> gunList = new ArrayList<>();
 		ArrayList<BaseLayout> gunList2 = new ArrayList<>();
 		ArrayList<BaseLayout> gunList3 = new ArrayList<>();
@@ -125,12 +144,13 @@ public class SupperPlaneGame extends Application {
 
 			@Override
 			public void handle(long now) {
-
+				//control "up" movement of mainPlayer and send position of the coordinate y to the server.
 				if (keyPressList.contains("UP")) {
 					if (mainPlayer.position.y - 10 > 10)
 						mainPlayer.position.set(mainPlayer.position.x, mainPlayer.position.y - 10);
 					client.send("Cor " + String.valueOf(mainPlayer.position.y) + " " + clientNumber);
 				}
+				//set the other players's position through socketValue.
 				if (socketValue.startsWith("Cor")) {
 					String[] data = socketValue.strip().split(" ");
 					int temp = Integer.parseInt(data[2]);
@@ -146,19 +166,20 @@ public class SupperPlaneGame extends Application {
 						break;
 					}
 				}
-
+				
+				//control "down" movement of mainPlayer and send position of the coordinate x to the server.
 				if (keyPressList.contains("DOWN")) {
-
 					if (mainPlayer.position.y + 10 < 590)
 						mainPlayer.position.set(mainPlayer.position.x, mainPlayer.position.y + 10);
 					client.send("Cor " + String.valueOf(mainPlayer.position.y) + " " + clientNumber);
 				}
+				//set the other players's shooting action through socketValue.
 				if (socketValue.startsWith("SPACE")) {
 					int temp = Integer.parseInt(socketValue.strip().split(" ")[1]);
 					switch (temp) {
 					case 0:
 						BaseLayout gun = new BaseLayout("/rocket.png");
-						gun.position.set(plane.position.x + plane.image.getWidth() / 2.0, plane.position.y);
+						gun.position.set(plane.position.x + plane.image.getWidth(), plane.position.y);
 						gun.speedMovement.setLength(300);
 						gunList.add(gun);
 						break;
@@ -178,17 +199,18 @@ public class SupperPlaneGame extends Application {
 					socketValue = "noThing";
 
 				}
+				//control "shooting" action of mainPlayer and send the action of to the server.
 				if (keyJustPressList.contains("SPACE")) {
 					client.send(String.valueOf("SPACE ") + clientNumber);
 					BaseLayout gun;
-					if(clientNumber == 0 ) {
+					if (clientNumber == 0) {
 						gun = new BaseLayout("/rocket.png");
 					}
-						
-					else 
+					else
 						gun = new BaseLayout("/rocket2.png");
 					gun.position.set(mainPlayer.position.x - mainPlayer.image.getWidth() / 2.0, mainPlayer.position.y);
 					gun.speedMovement.setLength(300);
+					//set gunList in order of the mainPlayer basing on the order of accessing.
 					switch (clientNumber) {
 					case 0:
 						gunList.add(gun);
@@ -203,7 +225,7 @@ public class SupperPlaneGame extends Application {
 
 				}
 				keyJustPressList.clear();
-				
+				//rockets movement 
 				for (int j = 0; j < gunList.size(); j++) {
 					BaseLayout gun = gunList.get(j);
 					gun.moveForward(1 / 60.0);
@@ -223,7 +245,7 @@ public class SupperPlaneGame extends Application {
 						gunList3.remove(gun);
 				}
 				
-				
+				//collision's detection basing on clientNumber (the order of logged in players).
 				switch (clientNumber) {
 				case 0:
 					// main plane = plane1
@@ -241,7 +263,7 @@ public class SupperPlaneGame extends Application {
 							gunList2.remove(gun);
 						}
 					}
-					
+
 					// plane2 checking
 					for (int j = 0; j < gunList.size(); j++) {
 						BaseLayout gun = gunList.get(j);
@@ -265,7 +287,7 @@ public class SupperPlaneGame extends Application {
 					}
 					break;
 				case 1:
-					
+
 					// plane2 checking
 					for (int j = 0; j < gunList.size(); j++) {
 						BaseLayout gun = gunList.get(j);
@@ -282,7 +304,7 @@ public class SupperPlaneGame extends Application {
 							gunList.remove(gun);
 						}
 					}
-					//  plane1
+					// plane1
 					for (int j = 0; j < gunList3.size(); j++) {
 						BaseLayout gun = gunList3.get(j);
 						if (gun.isOverLap(plane)) {
@@ -297,6 +319,7 @@ public class SupperPlaneGame extends Application {
 							gunList2.remove(gun);
 						}
 					}
+					
 					// plane2 vs plane3 checking overlap
 					if (mainPlayer.isOverLap(plane3)) {
 						mainPlayer.exlosing = true;
@@ -320,7 +343,7 @@ public class SupperPlaneGame extends Application {
 							gunList.remove(gun);
 						}
 					}
-					//  plane1
+					// plane1
 					for (int j = 0; j < gunList3.size(); j++) {
 						BaseLayout gun = gunList3.get(j);
 						if (gun.isOverLap(plane)) {
@@ -342,7 +365,8 @@ public class SupperPlaneGame extends Application {
 					}
 					break;
 				}
-
+				
+				//render images and background to canvas.
 				background.render(context);
 				mainPlayer.update();
 				mainPlayer.render(context);
@@ -375,14 +399,15 @@ public class SupperPlaneGame extends Application {
 					context.strokeText(result, 450, 300);
 					stop();
 				}
+				//check whether any player is destroyed. The message "dead" is sent to the server.
 				if (plane.destroy || plane2.destroy || plane3.destroy || mainPlayer.destroy) {
 					if (plane2.destroy || plane3.destroy)
 						client.send("dead 1");
 					else if (plane.destroy) {
-						client.send("dead 0" );
-					} else 
-						client.send("dead "+ clientNumber );
-					//stop();
+						client.send("dead 0");
+					} else
+						client.send("dead " + clientNumber);
+					// stop();
 				}
 				String textUser = String.valueOf(clientNumber);
 				context.fillText(textUser, 450, 100);
@@ -399,32 +424,33 @@ public class SupperPlaneGame extends Application {
 
 			}
 		};
-		client.seHandle(data -> {
+		//to handle the waiting room before the game gets enough 3 players.
+		client.setHandle(data -> {
 			socketValue = data;
 			Platform.runLater(() -> {
 				if (data.startsWith("waiting")) {
 					clientNumber = Integer.parseInt(data.strip().split(" ")[1]);
 					mainPlayer = chooseMainplayer(clientNumber);
 				}
+				//when the server notifies "start" message, game is nearly started.
 				if (data.startsWith("start")) {
 					RunningGame.start();
 					switch (clientNumber) {
-			        case 0:
-			        	plane.remove();
-			            break;
-			        case 1:
-			        	plane2.remove();
-			            break;
-			        case 2:
-			        	plane3.remove();
-			            break;
+					case 0:
+						plane.remove();
+						break;
+					case 1:
+						plane2.remove();
+						break;
+					case 2:
+						plane3.remove();
+						break;
 					}
-					
 				}
 			});
 		});
-		client.send("ready");
-
+		//clients send the notification "ready" to server.		
+		client.send("ready");		
 		RunningGame.start();
 		primaryStage.show();
 	}
@@ -436,7 +462,8 @@ public class SupperPlaneGame extends Application {
 		alert.setContentText(mess);
 		alert.show();
 	}
-
+	
+	//choose mainPlayer basing on the order of accessing.
 	public static BaseLayout chooseMainplayer(int number) {
 		System.out.println("NUmber: " + number);
 		switch (number) {

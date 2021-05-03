@@ -1,5 +1,9 @@
 package Game;
 
+/**The Vector class is used to tracking the objects's coordinate 
+ * @param x The parameter is to display the coordinate x.
+ * @param y The parameter is to display the coordinate y.
+ */
 public class Vertor {
 	public double x, y;
 
@@ -37,7 +41,7 @@ public class Vertor {
 			this.set(l, 0);
 		}
 		else {
-			this.multiply(1/currentLength); //lenght =1
+			this.multiply(1/currentLength); //length = 1
 			this.multiply(l); //length = L
 		}
 	}

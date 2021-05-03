@@ -3,6 +3,14 @@ package Game;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
+/**
+ * The BaseLayout class implements objects (planes, rockets) using canvas method to render.
+ * @param explosionStep: This is the parameter to display explosion effect (run from image 0-15) when objects are collapsed.
+ * @param position: This is the parameter to track the position of objects.
+ * @param boundary: This is the parameter display the border of the objects to define collisions.
+ * @param image: This used to link to image URI.
+ * @param speedMovement: This is parameter to check objects's speed.
+ */
 public class BaseLayout {
 	int explosionStep = 0;
 	final int EXPLOSION_W = 128;
@@ -13,7 +21,7 @@ public class BaseLayout {
 
 	public Vertor position;
 	public Vertor speedMovement;
-	public Rectangle boudary;
+	public Rectangle boundary;
 	public Image image;
 	public Boolean exlosing = false, destroy = false;
 
@@ -36,7 +44,7 @@ public class BaseLayout {
 	public BaseLayout() {
 		this.position = new Vertor();
 		this.speedMovement = new Vertor();
-		this.boudary = new Rectangle();
+		this.boundary = new Rectangle();
 	}
 
 	public BaseLayout(String imgUrl) {
@@ -46,12 +54,12 @@ public class BaseLayout {
 
 	public void setImage(String imgUrl) {
 		this.image = new Image(imgUrl);
-		this.boudary.setSize(this.image.getWidth(), this.image.getHeight());
+		this.boundary.setSize(this.image.getWidth(), this.image.getHeight());
 	}
 
 	public Rectangle getBoudary() {
-		this.boudary.setPosision(this.position.x, this.position.y);
-		return this.boudary;
+		this.boundary.setPosision(this.position.x, this.position.y);
+		return this.boundary;
 	}
 
 	public boolean isOverLap(BaseLayout other) {
@@ -74,7 +82,7 @@ public class BaseLayout {
 	public void remove() {
 		this.position.set(-100, -100);
 	}
-
+	
 	public void render(GraphicsContext context) {
 		context.save();
 		if (exlosing) {
